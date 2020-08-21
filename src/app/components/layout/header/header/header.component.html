@@ -1,0 +1,42 @@
+<div
+  class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm"
+>
+  <h5 class="my-0 mr-md-auto font-weight-normal font-weight-bold">
+    PART AMIGO
+  </h5>
+  <nav class="navbar navbar-default navbar-brand">
+    <a
+      class="p-2 text-dark font-weight-bold"
+      routerLinkActive="active"
+      routerLink="/browse"
+      >Browse</a
+    >
+    <a
+      class="p-2 text-dark font-weight-bold"
+      routerLinkActive="active"
+      routerLink="/import"
+      >Import</a
+    >
+    <a
+      class="p-2 text-dark font-weight-bold"
+      routerLinkActive="active"
+      routerLink="/export"
+      >Export</a
+    >
+  </nav>
+  <div class="dropdown">
+    <button
+      class="btn text-dark dropdown-toggle"
+      type="button"
+      id="dropdownMenuButton"
+      data-toggle="dropdown"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >
+      Account
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      <a class="dropdown-item" routerLink="#">Logout</a>
+    </div>
+  </div>
+</div>

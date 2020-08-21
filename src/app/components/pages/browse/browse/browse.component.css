@@ -1,0 +1,61 @@
+.btn {
+  margin-right: 15px;
+  width: 90px;
+}
+.btn-dark {
+  background-color: #000;
+}
+.btn-light {
+  background-color: #f8f9fa00;
+}
+.partsDataPagination {
+  margin-top: 20px;
+}
+ngb-pagination /deep/ .page-item.disabled .page-link {
+  padding: 0.4rem 1rem;
+  display: block;
+  font-weight: bold;
+  font-size: 15px;
+  border-radius: 5px !important;
+  border: 0px solid #fff !important;
+  margin-left: 0.5rem;
+  background-color: #000;
+  box-shadow: none;
+  outline: none !important;
+  transition: background-color 0.2s ease-out;
+  opacity: 0.6;
+  cursor: not-allowed;
+  color: #fff;
+}
+
+ngb-pagination /deep/ .page-item .page-link {
+  position: relative;
+  padding: 0.4rem 0.8rem;
+  display: block;
+  font-weight: bold;
+  font-size: 15px;
+  border-radius: 5px !important;
+  border: 0px solid #fff !important;
+  margin-left: 0.5rem;
+  background-color: #000;
+  color: #fff;
+  transition: background-color 0.2s ease-out;
+}
+
+ngb-pagination /deep/ .page-item.active .page-link {
+  z-index: 3;
+  color: #fff;
+  background-color: #ccc;
+  border-color: #000000;
+  box-shadow: none;
+  outline: none !important;
+}
+
+.no-data {
+  text-align: center;
+}
+
+.checkboxPartNumber {
+  border: solid black 1px;
+  border-radius: 0.2%;
+}

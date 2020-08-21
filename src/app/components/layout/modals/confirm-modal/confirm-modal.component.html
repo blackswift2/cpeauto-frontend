@@ -1,0 +1,30 @@
+<div class="modal-header">
+  <h4 class="modal-title" id="modal-title">{{ modal_title }}</h4>
+  <button
+    type="button"
+    class="close"
+    aria-describedby="modal-title"
+    (click)="activeModal.dismiss('close')"
+  >
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div [innerHTML]="modal_content"></div>
+</div>
+<div class="modal-footer">
+  <button
+    type="button"
+    class="btn btn-outline-secondary"
+    (click)="activeModal.dismiss('cancel')"
+  >
+    Cancel
+  </button>
+  <button
+    type="button"
+    class="btn btn-danger"
+    (click)="activeModal.close('ok')"
+  >
+    Ok
+  </button>
+</div>
