@@ -46,12 +46,13 @@
           <input
             type="checkbox"
             class="checkboxPartNumber"
-            (click)="checkCurrentPageCheckBoxes($event)"
+            (click)="checkAllCheckBoxes($event)"
           />&nbsp;&nbsp;Part Number
         </th>
         <th scope="col">Description - EN</th>
         <th scope="col">Description - ES</th>
         <th scope="col">Description - FR</th>
+        <th scope="col">Quantity</th>
         <th scope="col">Actions</th>
       </tr>
     </thead>
@@ -63,18 +64,21 @@
           let index = index
         "
       >
-        <td>
-          <input
-            #tableRowsCheckBoxes
-            type="checkbox"
-            value="{{ parts.id }}"
-            [(ngModel)]="parts.selected"
-            (change)="checkBoxChangedHandler($event, parts.id)"
-          />&nbsp;{{ parts.part_number }}
+        <td style="width: 180px;">
+          <span>
+            <input
+              #tableRowsCheckBoxes
+              type="checkbox"
+              value="{{ parts.id }}"
+              [(ngModel)]="parts.selected"
+              (change)="checkBoxChangedHandler($event, parts.id)"
+            />&nbsp;{{ parts.part_number }}</span
+          >
         </td>
         <td>{{ parts.description_en || "Not Available" }}</td>
         <td>{{ parts.description_es || "Not Available" }}</td>
         <td>{{ parts.description_fr || "Not Available" }}</td>
+        <td>{{ parts.quantity || "Not Available" }}</td>
         <td>
           <i
             style="cursor: pointer;"
@@ -90,7 +94,7 @@
         </td>
       </tr>
       <tr class="no-data" *ngIf="filteredPartsData.length === 0">
-        <td colspan="5">No Data Available</td>
+        <td colspan="6">No Data Available</td>
       </tr>
     </tbody>
   </table>
@@ -100,10 +104,10 @@
       class="d-flex justify-content-center"
       [collectionSize]="filteredPartsData.length"
       [(page)]="page"
-      [maxSize]="pageSize"
+      [(pageSize)]="pageSize"
+      [maxSize]="8"
       [rotate]="true"
       [ellipses]="false"
-      (pageChange)="onPageChange($event)"
       [boundaryLinks]="true"
     >
       <ng-template ngbPaginationPrevious><</ng-template>

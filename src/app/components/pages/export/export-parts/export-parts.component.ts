@@ -5,17 +5,18 @@ import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmModalComponent } from '../../../layout/modals/confirm-modal/confirm-modal.component';
 
 @Component({
-  selector: 'app-import',
-  templateUrl: './import.component.html',
-  styleUrls: ['./import.component.css'],
+  selector: 'app-export-parts',
+  templateUrl: './export-parts.component.html',
+  styleUrls: ['./export-parts.component.css'],
 })
-export class ImportComponent implements OnInit {
+export class ExportPartsComponent implements OnInit {
   public files: any[] = [];
   public alertClass = '';
   public alertMessage = '';
   public csvData = [];
   public headerColumns = '';
   public csvFileName = '';
+  public fileUploadStart = false;
   public showMatchColumnsView = false;
   public showSendingCSVDataProgress = {
     state: false,
@@ -89,6 +90,7 @@ export class ImportComponent implements OnInit {
   prepareFile(files: Array<any>) {
     if (!this.checkIfCsvIsValid(files)) return;
     for (const item of files) {
+      this.fileUploadStart = true;
       item.progress = 0;
       this.files.push(item);
       this.readCSVFile(item);

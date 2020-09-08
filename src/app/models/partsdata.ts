@@ -4,4 +4,5 @@ export class PartsData {
   description_en: string;
   description_es: string;
   description_fr: string;
+  selected: boolean;
 }

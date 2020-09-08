@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  ViewChildren,
-  QueryList,
-  ElementRef,
-} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PartsData } from '../../../../models/partsdata';
 import { PartsService } from './../../../../services/PartsService';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
@@ -20,15 +14,11 @@ export class BrowseComponent implements OnInit {
   public filteredPartsData: PartsData[] = [];
   public page = 1;
   public pageSize = 8;
-  public currentPage = 1;
   public selectedFilter = '';
   public searchValue = '';
   public alertClass = '';
   public alertMessage = '';
   public checkedBoxesPartIds = [];
-  @ViewChildren('tableRowsCheckBoxes') tableRowsCheckBoxes: QueryList<
-    ElementRef
-  >;
 
   constructor(
     private partsService: PartsService,
@@ -41,7 +31,6 @@ export class BrowseComponent implements OnInit {
 
   getPartsData() {
     this.partsService.getParts().subscribe((response) => {
-      console.log(response);
       this.partsData = response;
       this.filteredPartsData = response;
     });
@@ -134,34 +123,24 @@ export class BrowseComponent implements OnInit {
     );
   }
   /** Delete In Bulk */
-  checkCurrentPageCheckBoxes(event) {
-    const pageSize = this.filteredPartsData.length;
-    const maxPageSize = this.pageSize;
-    const currentPageSize = this.filteredPartsData.length; // pageSize > maxPageSize ? maxPageSize : pageSize;
-    console.log(currentPageSize);
-    let myCheckboxes = this.tableRowsCheckBoxes.toArray();
-    console.log(myCheckboxes);
-    for (let i = 0; i < currentPageSize; i += 1) {
-      this.tableRowsCheckBoxes.forEach((element) => {
-        element.nativeElement.checked = event.target.checked;
-      });
 
-      if (
-        this.checkedBoxesPartIds.indexOf(this.filteredPartsData[i].id) === -1
-      ) {
+  checkAllCheckBoxes(event) {
+    const dataLength = this.filteredPartsData.length;
+    this.checkedBoxesPartIds = [];
+    for (let i = 0; i < dataLength; i += 1) {
+      this.filteredPartsData[i].selected = event.target.checked;
+      if (event.target.checked) {
         this.checkedBoxesPartIds.push(this.filteredPartsData[i].id);
       }
     }
   }
+
   checkBoxChangedHandler(event, partID) {
-    console.log(event, partID);
-    if (event.target.checked) {
+    if (event.target.checked && this.checkedBoxesPartIds.indexOf(partID) < 0) {
       this.checkedBoxesPartIds.push(partID);
     } else if (!event.target.checked) {
       const index = this.checkedBoxesPartIds.indexOf(partID);
-      if (index > -1) {
-        this.checkedBoxesPartIds.splice(index, 1);
-      }
+      index > -1 ? this.checkedBoxesPartIds.splice(index, 1) : false;
     }
   }
 
@@ -199,8 +178,5 @@ export class BrowseComponent implements OnInit {
       this.alertClass = '';
       this.alertMessage = '';
     }, alertTimeout);
-  }
-  onPageChange(page: number) {
-    this.currentPage = page;
   }
 }

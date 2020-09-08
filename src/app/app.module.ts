@@ -9,24 +9,28 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { BrowseComponent } from './components/pages/browse/browse/browse.component';
 import { ImportComponent } from './components/pages/import/import/import.component';
-import { ExportComponent } from './components/pages/export/export/export.component';
+import { ExportPartsComponent } from './components/pages/export//export-parts/export-parts.component';
 import { HeaderComponent } from './components/layout/header/header/header.component';
 import { FooterComponent } from './components/layout/footer/footer/footer.component';
 import { AddpartsComponent } from './components/pages/browse/addparts/addparts.component';
 import { ConfirmModalComponent } from './components/layout/modals/confirm-modal/confirm-modal.component';
 
 import { PartsService } from './services/PartsService';
+import { DraganddropDirective } from './directives/draganddrop.directive';
+import { ProgressComponent } from './components/layout/progress/progress/progress.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     BrowseComponent,
     ImportComponent,
-    ExportComponent,
+    ExportPartsComponent,
     HeaderComponent,
     FooterComponent,
     AddpartsComponent,
     ConfirmModalComponent,
+    DraganddropDirective,
+    ProgressComponent,
   ],
   imports: [
     BrowserModule,

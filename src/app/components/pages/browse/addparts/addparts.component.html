@@ -1,71 +1,87 @@
-<div class="row justify-content-left">
-  <div class="col-md-4">
-    <div class="card-body">
-      <h4>{{ Title }}</h4>
-      <form [formGroup]="addPartsForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-          <label for="part_number"
-            >Part Number <span style="color: red;">*</span></label
-          >
-          <input
-            class="form-control"
-            type="text"
-            formControlName="part_number"
-          />
-          <div
-            *ngIf="
-              myaddPartsForm.part_number.invalid &&
-              (myaddPartsForm.part_number.dirty ||
-                myaddPartsForm.part_number.touched)
-            "
-            class="alert alert-danger"
-          >
-            <div *ngIf="myaddPartsForm.part_number.errors.required">
-              Part Number is required.
+<div class="container">
+  <div
+    *ngIf="alertClass && alertMessage"
+    class="{{ alertClass }} text-center"
+    role="alert"
+  >
+    <b> {{ alertMessage }} </b>
+  </div>
+  <div class="row justify-content-left">
+    <div class="col-md-4">
+      <div class="card-body">
+        <h4>{{ Title }}</h4>
+        <form [formGroup]="addPartsForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="part_number"
+              >Part Number <span style="color: red;">*</span></label
+            >
+            <input
+              class="form-control"
+              type="text"
+              formControlName="part_number"
+            />
+            <div
+              *ngIf="
+                myaddPartsForm.part_number.invalid &&
+                (myaddPartsForm.part_number.dirty ||
+                  myaddPartsForm.part_number.touched)
+              "
+              class="alert alert-danger"
+            >
+              <div *ngIf="myaddPartsForm.part_number.errors.required">
+                Part Number is required.
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="description_en">Description EN</label>
-          <input
-            class="form-control"
-            type="text"
-            formControlName="description_en"
-          />
-        </div>
+          <div class="form-group">
+            <label for="description_en">Description EN</label>
+            <input
+              class="form-control"
+              type="text"
+              formControlName="description_en"
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="description_es">Description ES</label>
-          <input
-            class="form-control"
-            type="text"
-            formControlName="description_es"
-          />
-        </div>
+          <div class="form-group">
+            <label for="description_es">Description ES</label>
+            <input
+              class="form-control"
+              type="text"
+              formControlName="description_es"
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="description_fr">Description FR</label>
-          <input
-            class="form-control"
-            type="text"
-            formControlName="description_fr"
-          />
-        </div>
+          <div class="form-group">
+            <label for="description_fr">Description FR</label>
+            <input
+              class="form-control"
+              type="text"
+              formControlName="description_fr"
+            />
+          </div>
 
-        <div class="form-group">
-          <button
-            class="btn btn-success btn-md btn-dark"
-            [disabled]="!addPartsForm.valid"
-            type="submit"
-            style="background-color: black;"
-          >
-            {{ buttonText }}
-          </button>
-          <p style="color: red; margin-top: 10px;">Error Saving Data!</p>
-        </div>
-      </form>
+          <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input
+              class="form-control"
+              type="number"
+              formControlName="quantity"
+            />
+          </div>
+
+          <div class="form-group">
+            <button
+              class="btn btn-success btn-md btn-dark"
+              [disabled]="!addPartsForm.valid"
+              type="submit"
+              style="background-color: black;"
+            >
+              {{ buttonText }}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-  <!-- form card register -->
 </div>

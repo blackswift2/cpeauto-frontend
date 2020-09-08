@@ -42,6 +42,13 @@ export class PartsService {
     return this.http.post(url, data).pipe(catchError(this.errorMgmt));
   }
 
+  // Create Part
+  bulkCreatePart(data): Observable<any> {
+    console.log(data);
+    let url = `${this.baseUri}/bulkCreate`;
+    return this.http.post(url, data).pipe(catchError(this.errorMgmt));
+  }
+
   // Update Part
   updatePartById(id, data): Observable<any> {
     let url = `${this.baseUri}/${id}`;
