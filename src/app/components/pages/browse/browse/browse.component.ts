@@ -112,7 +112,7 @@ export class BrowseComponent implements OnInit {
         this.filteredPartsData.splice(arrayIndex, 1);
         this.showAlert(
           'alert alert-success',
-          'Part has been successfully deleted!',
+          'Part have been successfully deleted!',
           4000
         );
       },
@@ -156,7 +156,7 @@ export class BrowseComponent implements OnInit {
         this.checkedBoxesPartIds = [];
         this.showAlert(
           'alert alert-success',
-          'Parts has been successfully deleted!',
+          'Parts have been successfully deleted!',
           4000
         );
       },
