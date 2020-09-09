@@ -44,7 +44,6 @@ export class PartsService {
 
   // Create Part
   bulkCreatePart(data): Observable<any> {
-    console.log(data);
     let url = `${this.baseUri}/bulkCreate`;
     return this.http.post(url, data).pipe(catchError(this.errorMgmt));
   }
@@ -69,6 +68,20 @@ export class PartsService {
       },
     };
     return this.http.delete(url, options).pipe(catchError(this.errorMgmt));
+  }
+
+  exportData(data): Observable<any> {
+    let url = `${this.baseUri}/exportparts`;
+    return this.http
+      .post(
+        url,
+        { data },
+        {
+          responseType: 'blob',
+          headers: new HttpHeaders().append('Content-Type', 'application/json'),
+        }
+      )
+      .pipe(catchError(this.errorMgmt));
   }
 
   // Error handling

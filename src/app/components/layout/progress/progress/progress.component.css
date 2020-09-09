@@ -1,7 +1,7 @@
 .progress-cont {
   height: 20px;
-  width: 100%;
-  border-radius: 4px;
+  width: 250px;
+  border-radius: 5px;
   background-color: #d0d0d0;
   position: relative;
 }

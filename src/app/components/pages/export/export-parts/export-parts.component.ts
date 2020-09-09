@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as fileReader from 'papaparse';
+import { saveAs } from 'file-saver';
 import { PartsService } from './../../../../services/PartsService';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmModalComponent } from '../../../layout/modals/confirm-modal/confirm-modal.component';
@@ -10,19 +11,17 @@ import { ConfirmModalComponent } from '../../../layout/modals/confirm-modal/conf
   styleUrls: ['./export-parts.component.css'],
 })
 export class ExportPartsComponent implements OnInit {
-  public files: any[] = [];
+  public file;
+  public fileName = '';
+  public fileHeaderColumns = [];
+  public fileData = [];
+
+  public selectedColumn = '';
+  public exportColumns = [];
+
   public alertClass = '';
   public alertMessage = '';
-  public csvData = [];
-  public headerColumns = '';
-  public csvFileName = '';
-  public fileUploadStart = false;
-  public showMatchColumnsView = false;
-  public showSendingCSVDataProgress = {
-    state: false,
-    progress: 0,
-  };
-  public csvDataRules = {};
+  public fileUploadStart = 0; // 0 = not started, 1 = started, 2 = completed, 3 = processing, 4 = downloading
 
   constructor(
     private partsService: PartsService,
@@ -32,47 +31,24 @@ export class ExportPartsComponent implements OnInit {
   ngOnInit(): void {}
 
   /**
-   * on file drop handler
+   * File Drop And Browser File Button Handler
    */
-  onFileDropped($event) {
-    if (this.checkFilesLength()) {
-      this.prepareFile($event);
-    }
+  onFileDroppedOrBrowse(event) {
+    this.file = event?.target?.files[0];
+    this.fileName = this.file.name;
+    if (!this.checkFileExtension(this.fileName)) return;
+    this.fileUploadStart = 1;
+    this.file.progress = 0;
+    this.readCSVFile(this.file);
+    this.uploadFilesSimulator();
   }
 
   /**
-   * handle file from browse button
+   * Check File Extension - Valid Extension is .csv
+   * @param fileName
    */
-  fileBrowseHandler(files) {
-    if (this.checkFilesLength()) {
-      this.prepareFile(files);
-    }
-  }
 
-  /**
-   * Delete file from files list
-   * @param index (File index)
-   */
-  deleteFile(index: number) {
-    this.files.splice(index, 1);
-  }
-
-  checkFilesLength() {
-    const fileLength = this.files.length > 0; // 0 means 1 file is already processed
-    if (fileLength) {
-      this.showAlert(
-        'alert alert-danger',
-        'You can only process one file at a time.',
-        3000
-      );
-      return false;
-    }
-    return true;
-  }
-
-  checkIfCsvIsValid(file) {
-    console.log(file[0]);
-    const fileName = `${file[0].name}`.toLowerCase();
+  checkFileExtension(fileName) {
     if (!`${fileName}`.endsWith('.csv')) {
       this.showAlert(
         'alert alert-danger',
@@ -82,75 +58,6 @@ export class ExportPartsComponent implements OnInit {
       return false;
     }
     return true;
-  }
-  /**
-   * Convert Files list to normal array list
-   * @param files (Files List)
-   */
-  prepareFile(files: Array<any>) {
-    if (!this.checkIfCsvIsValid(files)) return;
-    for (const item of files) {
-      this.fileUploadStart = true;
-      item.progress = 0;
-      this.files.push(item);
-      this.readCSVFile(item);
-    }
-    this.uploadFilesSimulator(0);
-  }
-
-  /**
-   * Simulate the upload process
-   */
-  uploadFilesSimulator(index: number) {
-    setTimeout(() => {
-      if (index === this.files.length) {
-        return;
-      } else {
-        const progressInterval = setInterval(() => {
-          if (this.files[index].progress === 100) {
-            clearInterval(progressInterval);
-            setTimeout(() => (this.showMatchColumnsView = true), 1500);
-          } else {
-            this.files[index].progress += 5;
-          }
-        }, 200);
-      }
-    }, 1000);
-  }
-
-  readCSVFile(file) {
-    fileReader.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      dynamicTyping: true,
-      complete: (result, file) => {
-        this.csvData = result.data;
-        this.headerColumns = result.meta.fields;
-        this.csvFileName = file.name;
-        this.generateCSVParserRules(this.headerColumns);
-      },
-      error: (err) => {
-        console.log(err);
-      },
-    });
-  }
-
-  /**
-   *
-   * Generate Rules
-   *
-   */
-
-  generateCSVParserRules(headerColumns) {
-    const rule = {
-      matchTo: 'skip',
-      emptyValue: 'ignore',
-      modifiedValue: 'original',
-    };
-    headerColumns.forEach((column) => {
-      this.csvDataRules[column] = { ...rule };
-    });
-    console.log(this.csvDataRules);
   }
 
   /**
@@ -169,99 +76,104 @@ export class ExportPartsComponent implements OnInit {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   }
 
-  /** Show Alert */
-  showAlert(alertClass, alertMessage, alertTimeout) {
-    this.alertClass = alertClass;
-    this.alertMessage = alertMessage;
+  /**
+   * Simulating the file uplaoding process
+   */
+  uploadFilesSimulator() {
     setTimeout(() => {
-      this.alertClass = '';
-      this.alertMessage = '';
-    }, alertTimeout);
-  }
-
-  /** Import CSV Data */
-
-  importData() {
-    //clean data by deleting skip columns
-    const columnRules = Object.keys(this.csvDataRules);
-    columnRules.forEach((column: any) => {
-      for (let ruleValue in this.csvDataRules[column]) {
-        if (
-          (ruleValue === 'matchTo' &&
-            this.csvDataRules[column][ruleValue] === 'skip') ||
-          (ruleValue === 'emptyValue' &&
-            this.csvDataRules[column][ruleValue] === 'ignore')
-        ) {
-          this.cleanData(column, this.csvDataRules[column][ruleValue]); // rule is a column name
+      const progressInterval = setInterval(() => {
+        if (this.file.progress === 100) {
+          clearInterval(progressInterval);
+          setTimeout(() => (this.fileUploadStart = 2), 1500);
+        } else {
+          this.file.progress += 5;
         }
-      }
-    });
-
-    // Match property names
-    const mappedColumns = {};
-    const insertionRules = {};
-    for (let propValue in this.csvDataRules) {
-      const columnValue = this.csvDataRules[propValue]['matchTo'];
-      mappedColumns[propValue] = columnValue;
-      insertionRules[columnValue] = this.csvDataRules[propValue];
-    }
-    const renamedData = [];
-    for (let csvRow of this.csvData) {
-      const data = this.renameKeys(csvRow, mappedColumns);
-      renamedData.push(data);
-    }
-    this.openConfirmModal({ partsData: renamedData, insertionRules });
-  }
-
-  /** Rename keys */
-
-  renameKeys(csvData, newKeys) {
-    const keyValues = Object.keys(csvData).map((key) => {
-      const newKey = newKeys[key] || key;
-      return { [newKey]: csvData[key] };
-    });
-    return Object.assign({}, ...keyValues);
+      }, 200);
+    }, 1000);
   }
 
   /**
-   * Delete Data
+   * Reading File Data - Valid file is .csv
+   * @param file
    */
+  readCSVFile(file) {
+    fileReader.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      dynamicTyping: true,
+      complete: (result) => {
+        this.fileData = result.data;
+        this.fileHeaderColumns = result.meta.fields;
+        this.selectedColumn = this.fileHeaderColumns[0];
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
+  }
 
-  cleanData(column, ruleValue) {
-    const csvDataLength = this.csvData.length;
-    for (let i = 0; i < csvDataLength; i++) {
-      if (this.csvData[i][column]) {
-        ruleValue === 'skip' ? delete this.csvData[i][column] : false;
-        ruleValue === 'ignore' && this.csvData[i][column] == ''
-          ? delete this.csvData[i][column]
-          : false;
-      }
+  /**
+   * Select file column data to export
+   * @param columnValue
+   */
+  selectFileColumnData(event) {
+    this.selectedColumn = event.target.value;
+  }
+
+  /**
+   * Export Column Check/Uncheck
+   * @param event
+   */
+  exportColumnOptions(event) {
+    const eventValue = event.target.value;
+    const checked = event.target.checked;
+    if (checked && !this.exportColumns.includes(eventValue)) {
+      this.exportColumns.push(eventValue);
+    } else if (!checked && this.exportColumns.includes(eventValue)) {
+      this.exportColumns = this.exportColumns.filter(
+        (option) => option !== eventValue
+      );
     }
   }
 
-  /** BulkCreate */
+  /**
+   * Start exporting data, arrange data in proper format
+   * to send to server
+   */
+  exportData() {
+    const partNumbers = [];
+    for (let i = 0; i < this.fileData.length; i++) {
+      if (this.fileData[i][this.selectedColumn]) {
+        partNumbers.push(this.fileData[i][this.selectedColumn].toString());
+      }
+    }
+    if (this.exportColumns.length > 0 && partNumbers.length > 0) {
+      this.exportColumns.unshift('part_number'); // Add part number to in exported columns
+      this.openConfirmModal({
+        partNumbers,
+        exportColumns: this.exportColumns,
+      });
+    } else {
+      const message =
+        partNumbers.length > 0
+          ? 'Please select any output field to proceed!'
+          : 'Part Number data is empty!';
+      this.showAlert('alert alert-danger', message, 3000);
+    }
+  }
 
-  bulkCreatePart(data) {
-    this.partsService.bulkCreatePart(data).subscribe(
+  /**
+   * Download exported data sent by server
+   * @param data
+   */
+  downloadExportedData(data) {
+    this.partsService.exportData(data).subscribe(
       (res) => {
+        this.file.progress = 100;
+        this.fileUploadStart = 4;
         setTimeout(() => {
-          const progressInterval = setInterval(() => {
-            if (this.showSendingCSVDataProgress.progress === 100) {
-              clearInterval(progressInterval);
-              setTimeout(
-                () =>
-                  this.showAlert(
-                    'alert alert-success',
-                    'Data Has Been Uploaded Successfully!',
-                    2000
-                  ),
-                500
-              );
-            } else {
-              this.showSendingCSVDataProgress.progress += 5;
-            }
-          }, 200);
-        }, 1000);
+          saveAs(res, this.fileName);
+        }, 2000);
       },
       (error) => {
         console.log(error);
@@ -273,22 +185,11 @@ export class ExportPartsComponent implements OnInit {
       }
     );
   }
-  /** Cancel Import */
 
-  cancelImport() {
-    this.files = [];
-    this.alertClass = '';
-    this.alertMessage = '';
-    this.csvData = [];
-    this.headerColumns = '';
-    this.csvFileName = '';
-    this.showMatchColumnsView = false;
-    this.showSendingCSVDataProgress.state = false;
-    this.showSendingCSVDataProgress.progress = 0;
-  }
-
-  /** Open Confirmation Modal */
-
+  /**
+   * Open Confirmation Modal to export
+   * @param partData
+   */
   openConfirmModal(partData) {
     const modalOptions: NgbModalOptions = {
       backdrop: 'static',
@@ -299,21 +200,52 @@ export class ExportPartsComponent implements OnInit {
       ConfirmModalComponent,
       modalOptions
     );
-    modalRef.componentInstance.modal_title = 'Confirm Import';
+    modalRef.componentInstance.modal_title = 'Confirm Export';
     modalRef.componentInstance.modal_content = `
-    <p><strong>Are you sure you want to import this data?</strong></p>
-    <p>Please review again before importing.
-    <span class="text-danger">Overwriting operation cannot be undone.</span>
+    <p><strong>Please confirm to export data.</strong></p>
     </p>`;
 
-    modalRef.result.then(
-      (result) => {
-        if (result === 'ok') {
-          this.showSendingCSVDataProgress.state = true;
-          this.bulkCreatePart(partData);
-        }
-      },
-      (reason) => {}
-    );
+    modalRef.result.then((result) => {
+      if (result === 'ok') {
+        setTimeout(() => {
+          this.file.progress = 0;
+          this.fileUploadStart = 3;
+          const progressInterval = setInterval(() => {
+            if (this.file.progress === 100) {
+              clearInterval(progressInterval);
+            } else {
+              this.file.progress += 5;
+            }
+          }, 200);
+        }, 100);
+        this.downloadExportedData(partData);
+      }
+    });
+  }
+
+  /**
+   * Show Alert
+   * @param alertClass
+   * @param alertMessage
+   * @param alertTimeout
+   */
+  showAlert(alertClass, alertMessage, alertTimeout) {
+    this.alertClass = alertClass;
+    this.alertMessage = alertMessage;
+    setTimeout(() => {
+      this.alertClass = '';
+      this.alertMessage = '';
+    }, alertTimeout);
+  }
+
+  /**
+   * Cancel import, clear all variables
+   */
+  cancelImport() {
+    this.file = [];
+    this.alertClass = '';
+    this.alertMessage = '';
+    this.fileData = [];
+    this.fileHeaderColumns = [];
   }
 }
