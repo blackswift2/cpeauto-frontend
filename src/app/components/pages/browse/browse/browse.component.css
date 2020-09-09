@@ -1,3 +1,6 @@
+.container-fluid {
+  padding-bottom: 60px;
+}
 .btn {
   margin-right: 15px;
   width: 90px;
@@ -6,7 +9,7 @@
   background-color: #000;
 }
 .btn-light {
-  background-color: #f8f9fa00;
+  background-color: #0915202c;
 }
 .partsDataPagination {
   margin-top: 20px;

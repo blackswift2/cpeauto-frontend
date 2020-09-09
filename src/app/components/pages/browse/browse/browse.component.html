@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container-fluid">
   <div
     *ngIf="alertClass && alertMessage"
     class="{{ alertClass }} text-center"
@@ -7,11 +7,11 @@
     <b> {{ alertMessage }} </b>
   </div>
   <a routerLink="/browse/add"
-    ><button type="button" class="btn btn-dark">Add</button></a
+    ><button type="button" class="btn btn-dark font-weight-bold">Add</button></a
   >
   <button
     type="button"
-    class="btn btn-danger"
+    class="font-weight-bold this.checkedBoxesPartIds.length === 0 ? btn btn-light : btn btn-danger"
     [disabled]="this.checkedBoxesPartIds.length === 0"
     (click)="openConfirmModal('undefined', 'undefined', 'multiple')"
   >
@@ -19,23 +19,16 @@
   </button>
   <div class="float-right form-inline">
     <div class="form-group mb-3">
+      <label class="font-weight-bold mr-2">Show entries</label>
       <select
-        class="form-control"
-        style="background-color: black; color: white;"
-        (change)="selectChangeHandler($event)"
+        class="custom-select custom-select-sm form-control"
+        (change)="changePerPageItems($event)"
       >
-        <option value="" selected>All Fields</option>
-        <option value="part_number">Part Number</option>
-        <option value="description_en">Description - EN</option>
-        <option value="description_es">Description - ES</option>
-        <option value="description_fr">Description - FR</option>
+        <option value="10">10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
       </select>
-      <input
-        class="form-control"
-        type="text"
-        placeholder="Enter search term..."
-        (keyup)="searchBoxValueHandler($event)"
-      />
     </div>
   </div>
 
@@ -52,8 +45,38 @@
         <th scope="col">Description - EN</th>
         <th scope="col">Description - ES</th>
         <th scope="col">Description - FR</th>
-        <th scope="col">Quantity</th>
         <th scope="col">Actions</th>
+      </tr>
+      <tr>
+        <th scope="col">
+          <input
+            type="text"
+            class="form-control"
+            (keyup)="keyUpfilterData($event, 'part_number')"
+          />
+        </th>
+        <th scope="col">
+          <input
+            type="text"
+            class="form-control"
+            (keyup)="keyUpfilterData($event, 'description_en')"
+          />
+        </th>
+        <th scope="col">
+          <input
+            type="text"
+            class="form-control"
+            (keyup)="keyUpfilterData($event, 'description_es')"
+          />
+        </th>
+        <th scope="col">
+          <input
+            type="text"
+            class="form-control"
+            (keyup)="keyUpfilterData($event, 'description_fr')"
+          />
+        </th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -64,7 +87,7 @@
           let index = index
         "
       >
-        <td style="width: 180px;">
+        <td style="width: 180px">
           <span>
             <input
               #tableRowsCheckBoxes
@@ -78,16 +101,15 @@
         <td>{{ parts.description_en || "Not Available" }}</td>
         <td>{{ parts.description_es || "Not Available" }}</td>
         <td>{{ parts.description_fr || "Not Available" }}</td>
-        <td>{{ parts.quantity || "Not Available" }}</td>
         <td>
           <i
-            style="cursor: pointer;"
+            style="cursor: pointer"
             routerLink="/browse/add/{{ parts.id }}"
             class="fa fa-edit"
           ></i>
           &nbsp;&nbsp;
           <i
-            style="cursor: pointer;"
+            style="cursor: pointer"
             (click)="openConfirmModal(parts.id, index, 'single')"
             class="fa fa-remove"
           ></i>
@@ -98,6 +120,7 @@
       </tr>
     </tbody>
   </table>
+
   <div class="partsDataPagination">
     <ngb-pagination
       *ngIf="filteredPartsData.length > 0"

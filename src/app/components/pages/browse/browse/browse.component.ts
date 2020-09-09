@@ -13,9 +13,7 @@ export class BrowseComponent implements OnInit {
   public partsData: PartsData[] = [];
   public filteredPartsData: PartsData[] = [];
   public page = 1;
-  public pageSize = 8;
-  public selectedFilter = '';
-  public searchValue = '';
+  public pageSize = 10;
   public alertClass = '';
   public alertMessage = '';
   public checkedBoxesPartIds = [];
@@ -36,28 +34,33 @@ export class BrowseComponent implements OnInit {
     });
   }
 
-  /** Start Filter Table Data Functions */
-  selectChangeHandler(event) {
-    this.selectedFilter = event.target.value;
-    this.filterPartsData();
+  /**
+   *
+   * @param event
+   */
+
+  changePerPageItems(event) {
+    this.pageSize = event.target.value;
   }
 
-  searchBoxValueHandler(event) {
-    this.searchValue = event.target.value.toLowerCase();
-    this.filterPartsData();
+  /**
+   * Filter parts data
+   * @param event
+   * @param columnName
+   */
+  keyUpfilterData(event, columnName) {
+    const searchValue = event.target.value;
+    this.filterPartsData(searchValue, columnName);
   }
 
-  filterPartsData() {
-    if (!this.searchValue) return (this.filteredPartsData = this.partsData);
+  filterPartsData(searchValue, columnName) {
+    if (!searchValue) return (this.filteredPartsData = this.partsData);
 
-    if (this.selectedFilter) {
+    if (columnName) {
       this.filteredPartsData = this.partsData.filter(
         (part) =>
-          part[this.selectedFilter] &&
-          part[this.selectedFilter]
-            .toString()
-            .toLowerCase()
-            .includes(this.searchValue)
+          part[columnName] &&
+          part[columnName].toString().toLowerCase().includes(searchValue)
       );
     } else {
       this.filteredPartsData = this.partsData.filter((part) => {
@@ -65,7 +68,7 @@ export class BrowseComponent implements OnInit {
         return partKeys.some(
           (key) =>
             part[key] &&
-            part[key].toString().toLowerCase().includes(this.searchValue)
+            part[key].toString().toLowerCase().includes(searchValue)
         );
       });
     }
