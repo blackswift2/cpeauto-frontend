@@ -6,12 +6,13 @@ import {
   HttpHeaders,
   HttpErrorResponse,
 } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PartsService {
-  baseUri: string = 'http://localhost:3000/api/parts';
+  baseUri: string = `${environment.apiURL}/api/parts`;
   headers = new HttpHeaders().set('Content-Type', 'application/json');
 
   constructor(private http: HttpClient) {}
