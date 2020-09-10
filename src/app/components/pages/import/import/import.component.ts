@@ -10,17 +10,16 @@ import { ConfirmModalComponent } from '../../../layout/modals/confirm-modal/conf
   styleUrls: ['./import.component.css'],
 })
 export class ImportComponent implements OnInit {
-  public files: any[] = [];
+  public file;
+  public fileName = '';
+  public fileHeaderColumns = [];
+  public fileData = [];
+  public csvData = []; //Copy
+
   public alertClass = '';
   public alertMessage = '';
-  public csvData = [];
-  public headerColumns = '';
-  public csvFileName = '';
-  public showMatchColumnsView = false;
-  public showSendingCSVDataProgress = {
-    state: false,
-    progress: 0,
-  };
+
+  public fileUploadStart = 0;
   public csvDataRules = {};
 
   constructor(
@@ -31,47 +30,24 @@ export class ImportComponent implements OnInit {
   ngOnInit(): void {}
 
   /**
-   * on file drop handler
+   * File Drop And Browser File Button Handler
    */
-  onFileDropped($event) {
-    if (this.checkFilesLength()) {
-      this.prepareFile($event);
-    }
+  onFileDroppedOrBrowse(event) {
+    this.file = event?.target?.files[0];
+    this.fileName = this.file.name;
+    if (!this.checkFileExtension(this.fileName)) return;
+    this.fileUploadStart = 1;
+    this.file.progress = 0;
+    this.readCSVFile(this.file);
+    this.uploadFilesSimulator();
   }
 
   /**
-   * handle file from browse button
+   * Check File Extension - Valid Extension is .csv
+   * @param fileName
    */
-  fileBrowseHandler(files) {
-    if (this.checkFilesLength()) {
-      this.prepareFile(files);
-    }
-  }
 
-  /**
-   * Delete file from files list
-   * @param index (File index)
-   */
-  deleteFile(index: number) {
-    this.files.splice(index, 1);
-  }
-
-  checkFilesLength() {
-    const fileLength = this.files.length > 0; // 0 means 1 file is already processed
-    if (fileLength) {
-      this.showAlert(
-        'alert alert-danger',
-        'You can only process one file at a time.',
-        3000
-      );
-      return false;
-    }
-    return true;
-  }
-
-  checkIfCsvIsValid(file) {
-    console.log(file[0]);
-    const fileName = `${file[0].name}`.toLowerCase();
+  checkFileExtension(fileName) {
     if (!`${fileName}`.endsWith('.csv')) {
       this.showAlert(
         'alert alert-danger',
@@ -82,73 +58,42 @@ export class ImportComponent implements OnInit {
     }
     return true;
   }
-  /**
-   * Convert Files list to normal array list
-   * @param files (Files List)
-   */
-  prepareFile(files: Array<any>) {
-    if (!this.checkIfCsvIsValid(files)) return;
-    for (const item of files) {
-      item.progress = 0;
-      this.files.push(item);
-      this.readCSVFile(item);
-    }
-    this.uploadFilesSimulator(0);
-  }
 
   /**
-   * Simulate the upload process
+   * Simulating the file uplaoding process
    */
-  uploadFilesSimulator(index: number) {
+  uploadFilesSimulator() {
     setTimeout(() => {
-      if (index === this.files.length) {
-        return;
-      } else {
-        const progressInterval = setInterval(() => {
-          if (this.files[index].progress === 100) {
-            clearInterval(progressInterval);
-            setTimeout(() => (this.showMatchColumnsView = true), 1500);
-          } else {
-            this.files[index].progress += 5;
-          }
-        }, 200);
-      }
+      const progressInterval = setInterval(() => {
+        if (this.file.progress === 100) {
+          clearInterval(progressInterval);
+          setTimeout(() => (this.fileUploadStart = 2), 500);
+        } else {
+          this.file.progress += 5;
+        }
+      }, 200);
     }, 1000);
   }
 
+  /**
+   * Reading CSV File
+   * @param file
+   */
   readCSVFile(file) {
     fileReader.parse(file, {
       header: true,
       skipEmptyLines: true,
       dynamicTyping: true,
-      complete: (result, file) => {
+      complete: (result) => {
+        this.fileData = result.data;
         this.csvData = result.data;
-        this.headerColumns = result.meta.fields;
-        this.csvFileName = file.name;
-        this.generateCSVParserRules(this.headerColumns);
+        this.fileHeaderColumns = result.meta.fields;
+        this.generateCSVParserRules(this.fileHeaderColumns);
       },
       error: (err) => {
         console.log(err);
       },
     });
-  }
-
-  /**
-   *
-   * Generate Rules
-   *
-   */
-
-  generateCSVParserRules(headerColumns) {
-    const rule = {
-      matchTo: 'skip',
-      emptyValue: 'ignore',
-      modifiedValue: 'original',
-    };
-    headerColumns.forEach((column) => {
-      this.csvDataRules[column] = { ...rule };
-    });
-    console.log(this.csvDataRules);
   }
 
   /**
@@ -167,22 +112,31 @@ export class ImportComponent implements OnInit {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   }
 
-  /** Show Alert */
-  showAlert(alertClass, alertMessage, alertTimeout) {
-    this.alertClass = alertClass;
-    this.alertMessage = alertMessage;
-    setTimeout(() => {
-      this.alertClass = '';
-      this.alertMessage = '';
-    }, alertTimeout);
+  /**
+   * Generate Parsing Rules
+   */
+
+  generateCSVParserRules(fileHeaderColumns) {
+    const rule = {
+      //Putting default values
+      matchTo: 'skip',
+      emptyValue: 'ignore',
+      modifiedValue: 'original',
+    };
+    // Loop through each column to add rules properties
+    fileHeaderColumns.forEach((column) => {
+      this.csvDataRules[column] = { ...rule };
+    });
+    console.log(this.csvDataRules);
   }
 
-  /** Import CSV Data */
+  /**
+   *  Import CSV Data
+   */
 
   importData() {
-    //clean data by deleting skip columns
-    const columnRules = Object.keys(this.csvDataRules);
-    columnRules.forEach((column: any) => {
+    //clean data by deleting skip and ignore values columns
+    Object.keys(this.csvDataRules).forEach((column: any) => {
       for (let ruleValue in this.csvDataRules[column]) {
         if (
           (ruleValue === 'matchTo' &&
@@ -199,9 +153,11 @@ export class ImportComponent implements OnInit {
     const mappedColumns = {};
     const insertionRules = {};
     for (let propValue in this.csvDataRules) {
-      const columnValue = this.csvDataRules[propValue]['matchTo'];
-      mappedColumns[propValue] = columnValue;
-      insertionRules[columnValue] = this.csvDataRules[propValue];
+      if (this.csvDataRules[propValue]['matchTo'] !== 'skip') {
+        const columnValue = this.csvDataRules[propValue]['matchTo'];
+        mappedColumns[propValue] = columnValue;
+        insertionRules[columnValue] = this.csvDataRules[propValue];
+      }
     }
     const renamedData = [];
     for (let csvRow of this.csvData) {
@@ -211,7 +167,7 @@ export class ImportComponent implements OnInit {
     this.openConfirmModal({ partsData: renamedData, insertionRules });
   }
 
-  /** Rename keys */
+  /** Rename keys to matched columns */
 
   renameKeys(csvData, newKeys) {
     const keyValues = Object.keys(csvData).map((key) => {
@@ -240,29 +196,17 @@ export class ImportComponent implements OnInit {
   /** BulkCreate */
 
   bulkCreatePart(data) {
+    console.log(data);
     this.partsService.bulkCreatePart(data).subscribe(
       (res) => {
+        this.file.progress = 100;
         setTimeout(() => {
-          const progressInterval = setInterval(() => {
-            if (this.showSendingCSVDataProgress.progress === 100) {
-              clearInterval(progressInterval);
-              setTimeout(
-                () =>
-                  this.showAlert(
-                    'alert alert-success',
-                    'Data Has Been Uploaded Successfully!',
-                    2000
-                  ),
-                500
-              );
-            } else {
-              this.showSendingCSVDataProgress.progress += 5;
-            }
-          }, 200);
-        }, 1000);
+          this.fileUploadStart = 4;
+        }, 2000);
       },
       (error) => {
         console.log(error);
+        this.fileUploadStart = 2;
         this.showAlert(
           'alert alert-danger',
           'Error updating part data, please try again!',
@@ -274,15 +218,12 @@ export class ImportComponent implements OnInit {
   /** Cancel Import */
 
   cancelImport() {
-    this.files = [];
+    this.file = '';
     this.alertClass = '';
     this.alertMessage = '';
     this.csvData = [];
-    this.headerColumns = '';
-    this.csvFileName = '';
-    this.showMatchColumnsView = false;
-    this.showSendingCSVDataProgress.state = false;
-    this.showSendingCSVDataProgress.progress = 0;
+    this.fileHeaderColumns = [];
+    this.fileName = '';
   }
 
   /** Open Confirmation Modal */
@@ -301,17 +242,37 @@ export class ImportComponent implements OnInit {
     modalRef.componentInstance.modal_content = `
     <p><strong>Are you sure you want to import this data?</strong></p>
     <p>Please review again before importing.
-    <span class="text-danger">Overwriting operation cannot be undone.</span>
+    <span class="text-danger">Overwriting or Erasing operations cannot be undone.</span>
     </p>`;
 
     modalRef.result.then(
       (result) => {
         if (result === 'ok') {
-          this.showSendingCSVDataProgress.state = true;
+          setTimeout(() => {
+            this.file.progress = 0;
+            this.fileUploadStart = 3;
+            const progressInterval = setInterval(() => {
+              if (this.file.progress === 100) {
+                clearInterval(progressInterval);
+              } else {
+                this.file.progress += 5;
+              }
+            }, 200);
+          }, 100);
           this.bulkCreatePart(partData);
         }
       },
       (reason) => {}
     );
+  }
+
+  /** Show Alert */
+  showAlert(alertClass, alertMessage, alertTimeout) {
+    this.alertClass = alertClass;
+    this.alertMessage = alertMessage;
+    setTimeout(() => {
+      this.alertClass = '';
+      this.alertMessage = '';
+    }, alertTimeout);
   }
 }

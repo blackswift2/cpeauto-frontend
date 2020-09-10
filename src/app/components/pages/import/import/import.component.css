@@ -6,7 +6,7 @@
   height: 300px;
   padding: 2rem;
   text-align: center;
-  border: dashed 4px #979797d8;
+  border: dashed 4px #e9dedeef;
   position: relative;
   margin: 0 auto;
 }
@@ -41,14 +41,17 @@
 }
 .files-list .single-file {
   display: flex;
-  padding: 0.5rem;
-  justify-content: space-between;
-  align-items: center;
-  border: dashed 4px #979797d8;
+  padding: 1rem;
+  border: 3px solid #e9e9e9;
   margin-bottom: 1rem;
-  display: flex;
   flex-grow: 1;
+  height: 220px;
 }
+
+.files-list .file-meta-info img {
+  float: left;
+}
+
 .files-list .single-file .delete {
   display: flex;
   margin-left: 0.5rem;
@@ -70,6 +73,25 @@
 }
 .files-list .single-file .info {
   width: 100%;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+}
+.center-uploading {
+  display: flex;
+  justify-content: center;
+}
+
+.import-file-data {
+  display: flex;
+  border: 3px solid #e9e9e9;
+  flex-grow: 1;
+}
+
+.import-select-column {
+  border-right: 1px solid #ccc;
 }
 /* Shake animation */
 @keyframes shake {

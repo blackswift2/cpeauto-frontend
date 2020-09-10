@@ -1,1 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
+.btn-dark {
+  background-color: #000;
+}
+
+.container-fluid {
+  padding: 30px;
+  padding-bottom: 60px;
+}
