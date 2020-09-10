@@ -154,10 +154,7 @@
   <div class="col-md-12 col-sm-12 files-list">
     <div class="single-file" *ngIf="file">
       <div class="info">
-        <h4
-          class="font-weight-bold center-uploading"
-          style="margin-right: 30px"
-        >
+        <h4 class="font-weight-bold center-uploading" style="margin-top: 30px">
           Processing {{ file?.progress }} %
         </h4>
         <app-progress class="center" [progress]="file?.progress"></app-progress>
