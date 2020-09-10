@@ -56,7 +56,10 @@ export class PartsService {
       .pipe(catchError(this.errorMgmt));
   }
 
-  // Delete part
+  /**
+   * Delete single part or in bulk based on ids
+   * @param ids
+   */
   deletePart(ids): Observable<any> {
     let url = `${this.baseUri}`;
     const options = {
@@ -70,7 +73,11 @@ export class PartsService {
     return this.http.delete(url, options).pipe(catchError(this.errorMgmt));
   }
 
-  exportData(data): Observable<any> {
+  /**
+   * Export Data Service Function
+   * @param data - data is array of party numbers, response is csv file
+   */
+  exportData(data: any[]): Observable<any> {
     let url = `${this.baseUri}/exportparts`;
     return this.http
       .post(

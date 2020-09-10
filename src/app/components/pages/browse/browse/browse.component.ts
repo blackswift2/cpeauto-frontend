@@ -27,10 +27,13 @@ export class BrowseComponent implements OnInit {
     this.getPartsData();
   }
 
+  /**
+   * Get All Parts Data
+   */
   getPartsData() {
     this.partsService.getParts().subscribe((response) => {
       this.partsData = response;
-      this.filteredPartsData = response;
+      this.filteredPartsData = response; // Keeping copy for filtering purpose
     });
   }
 
@@ -53,6 +56,11 @@ export class BrowseComponent implements OnInit {
     this.filterPartsData(searchValue, columnName);
   }
 
+  /**
+   * Filter data based on search value and column name
+   * @param searchValue
+   * @param columnName
+   */
   filterPartsData(searchValue, columnName) {
     if (!searchValue) return (this.filteredPartsData = this.partsData);
 
@@ -125,7 +133,8 @@ export class BrowseComponent implements OnInit {
       }
     );
   }
-  /** Delete In Bulk */
+
+  /**Start deleting Data In Bulk */
 
   checkAllCheckBoxes(event) {
     const dataLength = this.filteredPartsData.length;

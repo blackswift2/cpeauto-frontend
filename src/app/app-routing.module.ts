@@ -16,7 +16,7 @@ const routes: Routes = [
     component: BrowseComponent,
   },
   {
-    path: 'browse/add/:id',
+    path: 'browse/edit/:id',
     component: AddpartsComponent,
   },
   {
