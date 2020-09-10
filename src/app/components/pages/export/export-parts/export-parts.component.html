@@ -154,7 +154,7 @@
   <div class="col-md-12 col-sm-12 files-list">
     <div class="single-file" *ngIf="file">
       <div class="info">
-        <h4 class="font-weight-bold center-uploading" style="margin-top: 30px">
+        <h4 class="font-weight-bold center-uploading" style="margin-top: 40px">
           Processing {{ file?.progress }} %
         </h4>
         <app-progress class="center" [progress]="file?.progress"></app-progress>
@@ -166,7 +166,7 @@
 <div class="container-fluid" *ngIf="fileUploadStart === 4">
   <div class="col-md-12 col-sm-12 files-list">
     <div class="single-file" *ngIf="file">
-      <div class="info" style="margin-top: 35px">
+      <div class="info" style="margin-top: 40px">
         <h4 class="font-weight-bold center-uploading">Export is ready!</h4>
         <p class="center">
           Your download should start automatically in a few seconds!
