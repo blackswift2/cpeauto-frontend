@@ -189,11 +189,8 @@
 <div class="container-fluid" *ngIf="fileUploadStart === 3">
   <div class="col-md-12 col-sm-12 files-list">
     <div class="single-file" *ngIf="file">
-      <div class="info">
-        <h4
-          class="font-weight-bold center-uploading"
-          style="margin-right: 30px"
-        >
+      <div class="info" style="margin-top: 35px">
+        <h4 class="font-weight-bold center-uploading">
           Processing {{ file?.progress }} %
         </h4>
         <app-progress
