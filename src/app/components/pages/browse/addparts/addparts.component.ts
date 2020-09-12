@@ -18,6 +18,7 @@ export class AddpartsComponent implements OnInit {
   public isDeleteActive = false;
   public alertClass = '';
   public alertMessage = '';
+  private partNumberCopy = '';
 
   constructor(
     public fb: FormBuilder,
@@ -75,6 +76,7 @@ export class AddpartsComponent implements OnInit {
           description_es: data['description_es'],
           description_fr: data['description_fr'],
         });
+        this.partNumberCopy = data.part_number;
       } else {
         this.showAlert(
           'alert alert-danger',
@@ -134,34 +136,39 @@ export class AddpartsComponent implements OnInit {
    * @param formData
    */
   async updatePartData(partID, formData) {
-    const title = 'Confirm Update';
-    const modelContent = `
-    <p><strong>Are you sure you want to update this part data?</strong></p>
-    <p>All information associated to this part will be updated.
-    <span class="text-danger">This operation can not be undone.</span>
-    </p>`;
-    if ((await this.openConfirmModal(title, modelContent)) === 'ok') {
-      this.partsService.updatePartById(partID, { data: formData }).subscribe(
-        (res) => {
-          this.showAlert(
-            'alert alert-success',
-            `Part data has been updated successfully. You'll be redirected to browse page!`,
-            4000
-          );
-          setTimeout(() => {
-            this.router.navigateByUrl('/browse');
-          }, 4500);
-        },
-        (error) => {
-          console.log(error);
-          this.showAlert(
-            'alert alert-danger',
-            'Error updating part data, please try again!',
-            2000
-          );
-        }
-      );
+    const title = 'Change Part Number?';
+    const modelContent = '<p>These typically do not require editing.</p>';
+    const modelOperation = 'update';
+    const checkToShowModal = this.partNumberCopy !== formData.part_number; // Show confirmation dialog only on change part dialog
+    if (
+      checkToShowModal &&
+      (await this.openConfirmModal(title, modelContent, modelOperation)) ===
+        'ok'
+    ) {
+      this.proceedUpdatePartData(partID, formData);
+    } else {
+      this.proceedUpdatePartData(partID, formData);
     }
+  }
+
+  proceedUpdatePartData(partID, formData) {
+    this.partsService.updatePartById(partID, { data: formData }).subscribe(
+      (res) => {
+        this.showAlert(
+          'alert alert-success',
+          'Part data successfully saved.',
+          4000
+        );
+      },
+      (error) => {
+        console.log(error);
+        this.showAlert(
+          'alert alert-danger',
+          'Error updating part data, please try again!',
+          2000
+        );
+      }
+    );
   }
 
   /**
@@ -170,12 +177,17 @@ export class AddpartsComponent implements OnInit {
    */
   async confirmDeletePart(partID) {
     const title = 'Confirm Delete';
-    const modelContent = `
-    <p><strong>Are you sure you want to delete this part?</strong></p>
-    <p>All information associated to this part will be permanently deleted.
+    const modalContent = `
+    <p><strong>Are you sure you want to delete the selected part(s)?</strong></p>
+    <p>All information associated will be permanently deleted.
     <span class="text-danger">This operation can not be undone.</span>
     </p>`;
-    if ((await this.openConfirmModal(title, modelContent)) === 'ok') {
+    const modelOperation = 'delete';
+
+    if (
+      (await this.openConfirmModal(title, modalContent, modelOperation)) ===
+      'ok'
+    ) {
       this.partsService.deletePart(partID).subscribe(
         (res) => {
           this.showAlert(
@@ -201,7 +213,7 @@ export class AddpartsComponent implements OnInit {
   /**
    * Model Confirmation OK/CANCEL
    */
-  openConfirmModal(title, modelContent) {
+  openConfirmModal(title, modelContent, modelOperation) {
     const modalOptions: NgbModalOptions = {
       backdrop: 'static',
       backdropClass: 'customBackdrop',
@@ -213,7 +225,7 @@ export class AddpartsComponent implements OnInit {
     );
     modalRef.componentInstance.modal_title = title;
     modalRef.componentInstance.modal_content = modelContent;
-
+    modalRef.componentInstance.modal_operation = modelOperation;
     return modalRef.result.then(
       (result) => {
         return result;
