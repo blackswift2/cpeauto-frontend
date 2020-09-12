@@ -40,7 +40,11 @@ export class PartsService {
   // Create Part
   createPart(data): Observable<any> {
     let url = `${this.baseUri}`;
-    return this.http.post(url, data).pipe(catchError(this.errorMgmt));
+    return this.http.post(url, data).pipe(
+      catchError((err) => {
+        throw err;
+      })
+    );
   }
 
   // Create Part
@@ -95,6 +99,7 @@ export class PartsService {
   // Error handling
   errorMgmt(error: HttpErrorResponse) {
     let errorMessage = '';
+    console.log(error);
     if (error.error instanceof ErrorEvent) {
       errorMessage = error.error.message;
     } else {

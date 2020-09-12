@@ -16,6 +16,12 @@ export class BrowseComponent implements OnInit {
   public pageSize = 10;
   public alertClass = '';
   public alertMessage = '';
+  public searchColumns = {
+    part_number: '',
+    description_en: '',
+    description_es: '',
+    description_fr: '',
+  };
   public checkedPartsForDelete = [];
 
   constructor(
@@ -62,24 +68,19 @@ export class BrowseComponent implements OnInit {
    * @param columnName
    */
   filterPartsData(searchValue, columnName) {
-    if (!searchValue) return (this.filteredPartsData = this.partsData);
-
-    if (columnName) {
-      this.filteredPartsData = this.partsData.filter(
-        (part) =>
-          part[columnName] &&
-          part[columnName].toString().toLowerCase().includes(searchValue)
-      );
-    } else {
-      this.filteredPartsData = this.partsData.filter((part) => {
-        const partKeys = Object.keys(part);
-        return partKeys.some(
-          (key) =>
-            part[key] &&
-            part[key].toString().toLowerCase().includes(searchValue)
+    this.searchColumns[columnName] = searchValue;
+    this.filteredPartsData = this.partsData.filter((part) => {
+      return Object.keys(this.searchColumns).every((column) => {
+        return (
+          this.searchColumns[column] === '' ||
+          (part[column] &&
+            part[column]
+              .toString()
+              .toLowerCase()
+              .includes(this.searchColumns[column].toLowerCase()))
         );
       });
-    }
+    });
   }
   /** End Filter Table Data Functions */
 

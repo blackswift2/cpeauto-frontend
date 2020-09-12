@@ -110,22 +110,25 @@ export class AddpartsComponent implements OnInit {
    * @param formData
    */
   createPartData(formData) {
+    //Trim white spaces
+    Object.keys(formData).forEach(
+      (key) => (formData[key] = formData[key].trim())
+    );
     this.partsService.createPart({ data: formData }).subscribe(
       (res) => {
         this.addPartsForm.reset();
         this.showAlert(
           'alert alert-success',
-          'Part data has been added successfully!',
+          'Part has been added successfully!',
           4000
         );
       },
       (error) => {
-        console.log(error);
-        this.showAlert(
-          'alert alert-danger',
-          'Error adding part data, please try again!',
-          4000
-        );
+        const errorMessage =
+          error.status === 409
+            ? 'Part number already exists, please try again!'
+            : 'Error adding part, please try again!';
+        this.showAlert('alert alert-danger', errorMessage, 4000);
       }
     );
   }

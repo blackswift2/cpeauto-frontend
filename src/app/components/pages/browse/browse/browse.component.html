@@ -129,7 +129,7 @@
     <ngb-pagination
       *ngIf="filteredPartsData.length > 0"
       class="d-flex justify-content-center"
-      [collectionSize]="120"
+      [collectionSize]="filteredPartsData.length"
       [(page)]="page"
       [(pageSize)]="pageSize"
       [maxSize]="5"
