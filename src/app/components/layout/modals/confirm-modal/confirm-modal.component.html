@@ -22,6 +22,14 @@
     DELETE
   </button>
   <button
+    *ngIf="modal_operation === 'overwite'"
+    type="button"
+    class="btn btn-danger"
+    (click)="activeModal.close('ok')"
+  >
+    Overwite
+  </button>
+  <button
     *ngIf="modal_operation === 'update'"
     type="button"
     class="btn btn-dark"

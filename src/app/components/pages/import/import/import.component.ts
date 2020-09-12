@@ -77,11 +77,12 @@ export class ImportComponent implements OnInit {
    * @param file
    */
   readCSVFile(file) {
-    console.log(file);
     fileReader.parse(file, {
       header: true,
       skipEmptyLines: true,
-      dynamicTyping: true,
+      transformHeader: (h) => {
+        return h.trim();
+      },
       complete: (result) => {
         this.fileData = result.data;
         this.csvData = result.data;
@@ -127,44 +128,61 @@ export class ImportComponent implements OnInit {
     fileHeaderColumns.forEach((column) => {
       this.csvDataRules[column] = { ...rule };
     });
-    console.log(this.csvDataRules);
   }
 
   /**
    *  Import CSV Data
    */
 
-  importData() {
-    //clean data by deleting skip and ignore values columns
-    Object.keys(this.csvDataRules).forEach((column: any) => {
-      for (let ruleValue in this.csvDataRules[column]) {
-        if (
-          (ruleValue === 'matchTo' &&
-            this.csvDataRules[column][ruleValue] === 'skip') ||
-          (ruleValue === 'emptyValue' &&
-            this.csvDataRules[column][ruleValue] === 'ignore')
-        ) {
-          this.cleanData(column, this.csvDataRules[column][ruleValue]); // rule is a column name
+  async importData() {
+    // Start Processing data
+    if ((await this.openConfirmModal()) === 'ok') {
+      setTimeout(() => {
+        this.file.progress = 0;
+        this.fileUploadStart = 3;
+        const progressInterval = setInterval(() => {
+          if (this.file.progress === 100) {
+            clearInterval(progressInterval);
+          } else {
+            this.file.progress += 5;
+          }
+        }, 200);
+      }, 100);
+
+      //clean data by deleting skip and ignore values columns
+      Object.keys(this.csvDataRules).forEach((column: any) => {
+        for (let ruleValue in this.csvDataRules[column]) {
+          if (
+            (ruleValue === 'matchTo' &&
+              this.csvDataRules[column][ruleValue] === 'skip') ||
+            (ruleValue === 'emptyValue' &&
+              this.csvDataRules[column][ruleValue] === 'ignore')
+          ) {
+            this.cleanData(column, this.csvDataRules[column][ruleValue]); // rule is a column name
+          }
+        }
+      });
+
+      // Match property names
+      const mappedColumns = {};
+      const insertionRules = {};
+      for (let propValue in this.csvDataRules) {
+        if (this.csvDataRules[propValue]['matchTo'] !== 'skip') {
+          const columnValue = this.csvDataRules[propValue]['matchTo'];
+          mappedColumns[propValue] = columnValue;
+          insertionRules[columnValue] = this.csvDataRules[propValue];
         }
       }
-    });
-
-    // Match property names
-    const mappedColumns = {};
-    const insertionRules = {};
-    for (let propValue in this.csvDataRules) {
-      if (this.csvDataRules[propValue]['matchTo'] !== 'skip') {
-        const columnValue = this.csvDataRules[propValue]['matchTo'];
-        mappedColumns[propValue] = columnValue;
-        insertionRules[columnValue] = this.csvDataRules[propValue];
+      const renamedData = [];
+      for (let csvRow of this.csvData) {
+        Object.keys(csvRow).forEach(
+          (row) => (csvRow[row] = csvRow[row].trim())
+        );
+        const data = this.renameKeys(csvRow, mappedColumns);
+        renamedData.push(data);
       }
+      this.bulkCreatePart({ partsData: renamedData, insertionRules });
     }
-    const renamedData = [];
-    for (let csvRow of this.csvData) {
-      const data = this.renameKeys(csvRow, mappedColumns);
-      renamedData.push(data);
-    }
-    this.openConfirmModal({ partsData: renamedData, insertionRules });
   }
 
   /** Rename keys to matched columns */
@@ -196,7 +214,6 @@ export class ImportComponent implements OnInit {
   /** BulkCreate */
 
   bulkCreatePart(data) {
-    console.log(data);
     this.partsService.bulkCreatePart(data).subscribe(
       (res) => {
         this.file.progress = 100;
@@ -234,7 +251,7 @@ export class ImportComponent implements OnInit {
 
   /** Open Confirmation Modal */
 
-  openConfirmModal(partData) {
+  openConfirmModal() {
     const modalOptions: NgbModalOptions = {
       backdrop: 'static',
       backdropClass: 'customBackdrop',
@@ -250,25 +267,14 @@ export class ImportComponent implements OnInit {
     <p>Please review again before importing.
     <span class="text-danger">Overwriting or Erasing operations cannot be undone.</span>
     </p>`;
-
-    modalRef.result.then(
+    modalRef.componentInstance.modal_operation = 'overwite';
+    return modalRef.result.then(
       (result) => {
-        if (result === 'ok') {
-          setTimeout(() => {
-            this.file.progress = 0;
-            this.fileUploadStart = 3;
-            const progressInterval = setInterval(() => {
-              if (this.file.progress === 100) {
-                clearInterval(progressInterval);
-              } else {
-                this.file.progress += 5;
-              }
-            }, 200);
-          }, 100);
-          this.bulkCreatePart(partData);
-        }
+        return result;
       },
-      (reason) => {}
+      (reason) => {
+        return reason;
+      }
     );
   }
 
