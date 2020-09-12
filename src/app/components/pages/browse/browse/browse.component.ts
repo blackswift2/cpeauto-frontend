@@ -16,7 +16,7 @@ export class BrowseComponent implements OnInit {
   public pageSize = 10;
   public alertClass = '';
   public alertMessage = '';
-  public checkedBoxesPartIds = [];
+  public checkedPartsForDelete = [];
 
   constructor(
     private partsService: PartsService,
@@ -83,9 +83,131 @@ export class BrowseComponent implements OnInit {
   }
   /** End Filter Table Data Functions */
 
-  /** Start Delete Part Functionality  */
+  /**================================ Start Delete Part Functionality====================================  */
 
-  openConfirmModal(partID, arrayIndex, type) {
+  /**
+   * Check All Checkboxes
+   * @param event
+   */
+  checkAllCheckBoxes(event) {
+    const dataLength = this.filteredPartsData.length;
+    this.checkedPartsForDelete = [];
+    for (let i = 0; i < dataLength; i += 1) {
+      this.filteredPartsData[i].selected = event.target.checked;
+      if (event.target.checked) {
+        this.checkedPartsForDelete.push(this.filteredPartsData[i].id);
+      }
+    }
+  }
+
+  /**
+   * Check single checkbox
+   * @param event
+   * @param partID
+   */
+  checkBoxChangedHandler(event, partID) {
+    if (
+      event.target.checked &&
+      this.checkedPartsForDelete.indexOf(partID) < 0
+    ) {
+      this.checkedPartsForDelete.push(partID);
+    } else if (!event.target.checked) {
+      const index = this.checkedPartsForDelete.indexOf(partID);
+      index > -1 ? this.checkedPartsForDelete.splice(index, 1) : false;
+    }
+  }
+
+  /**
+   * Delete single part data
+   * @param partData
+   * @param arrayIndex
+   */
+  async deletePart(partData, arrayIndex) {
+    const modelTitle = 'Confirm Delete';
+    const modalContent = `
+    <p><strong>Are you sure you want to delete this part?</strong></p>
+    <p>All information associated to this part will be permanently deleted.
+    <span class="text-danger">This operation can not be undone.</span>
+    </p>`;
+    const modal_operation = 'delete';
+    if (
+      (await this.openConfirmModal(
+        modelTitle,
+        modalContent,
+        modal_operation
+      )) === 'ok'
+    ) {
+      this.partsService.deletePart(partData.id).subscribe(
+        (res) => {
+          this.filteredPartsData.splice(arrayIndex, 1);
+          this.showAlert(
+            'alert alert-success',
+            `Part ${partData.part_number} has been successfully deleted!`,
+            4000
+          );
+        },
+        (err) => {
+          this.showAlert(
+            'alert alert-danger',
+            'Error deleting part, please try again!',
+            4000
+          );
+        }
+      );
+    }
+  }
+
+  /**
+   * Delete part data in bulk
+   */
+  async deleteInBulk() {
+    const modelTitle = 'Confirm Delete Selected Part(s)';
+    const modalContent = `
+    <p><strong>Are you sure you want to delete the selected part(s)?</strong></p>
+    <p>All information associated will be permanently deleted.
+    <span class="text-danger">This operation can not be undone.</span>
+    </p>`;
+    const modal_operation = 'delete';
+
+    if (
+      (await this.openConfirmModal(
+        modelTitle,
+        modalContent,
+        modal_operation
+      )) === 'ok'
+    ) {
+      this.partsService.deletePart(this.checkedPartsForDelete).subscribe(
+        (res) => {
+          this.filteredPartsData = this.filteredPartsData.filter(
+            (part) => !this.checkedPartsForDelete.includes(part.id)
+          );
+          this.checkedPartsForDelete = [];
+          this.showAlert(
+            'alert alert-success',
+            'Parts have been successfully deleted.',
+            5000
+          );
+        },
+        (err) => {
+          this.showAlert(
+            'alert alert-danger',
+            'Error deleting part, please try again!',
+            5000
+          );
+        }
+      );
+    }
+  }
+  /** End Delete In Bulk */
+
+  /**================================ End Delete Part Functionality====================================  */
+
+  /**
+   * Confirm Modal
+   * @param title
+   * @param modalContent
+   */
+  openConfirmModal(modalTitle, modalContent, modal_operation) {
     const modalOptions: NgbModalOptions = {
       backdrop: 'static',
       backdropClass: 'customBackdrop',
@@ -95,94 +217,25 @@ export class BrowseComponent implements OnInit {
       ConfirmModalComponent,
       modalOptions
     );
-    modalRef.componentInstance.modal_title = 'Confirm Delete';
-    modalRef.componentInstance.modal_content = `
-    <p><strong>Are you sure you want to delete this part?</strong></p>
-    <p>All information associated to this part will be permanently deleted.
-    <span class="text-danger">This operation can not be undone.</span>
-    </p>`;
-
-    modalRef.result.then(
+    modalRef.componentInstance.modal_title = modalTitle;
+    modalRef.componentInstance.modal_content = modalContent;
+    modalRef.componentInstance.modal_operation = modal_operation;
+    return modalRef.result.then(
       (result) => {
-        if (result === 'ok') {
-          type === 'single'
-            ? this.deletePart(partID, arrayIndex)
-            : this.deleteInBulk();
-        }
+        return result;
       },
-      (reason) => {}
-    );
-  }
-
-  deletePart(partID, arrayIndex) {
-    this.partsService.deletePart(partID).subscribe(
-      (res) => {
-        this.filteredPartsData.splice(arrayIndex, 1);
-        this.showAlert(
-          'alert alert-success',
-          'Part have been successfully deleted!',
-          4000
-        );
-      },
-      (err) => {
-        this.showAlert(
-          'alert alert-danger',
-          'Error deleting part, please try again!',
-          4000
-        );
+      (reason) => {
+        return reason;
       }
     );
   }
 
-  /**Start deleting Data In Bulk */
-
-  checkAllCheckBoxes(event) {
-    const dataLength = this.filteredPartsData.length;
-    this.checkedBoxesPartIds = [];
-    for (let i = 0; i < dataLength; i += 1) {
-      this.filteredPartsData[i].selected = event.target.checked;
-      if (event.target.checked) {
-        this.checkedBoxesPartIds.push(this.filteredPartsData[i].id);
-      }
-    }
-  }
-
-  checkBoxChangedHandler(event, partID) {
-    if (event.target.checked && this.checkedBoxesPartIds.indexOf(partID) < 0) {
-      this.checkedBoxesPartIds.push(partID);
-    } else if (!event.target.checked) {
-      const index = this.checkedBoxesPartIds.indexOf(partID);
-      index > -1 ? this.checkedBoxesPartIds.splice(index, 1) : false;
-    }
-  }
-
-  deleteInBulk() {
-    this.partsService.deletePart(this.checkedBoxesPartIds).subscribe(
-      (res) => {
-        this.filteredPartsData = this.filteredPartsData.filter(
-          (part) => !this.checkedBoxesPartIds.includes(part.id)
-        );
-        this.checkedBoxesPartIds = [];
-        this.showAlert(
-          'alert alert-success',
-          'Parts have been successfully deleted!',
-          4000
-        );
-      },
-      (err) => {
-        this.showAlert(
-          'alert alert-danger',
-          'Error deleting part, please try again!',
-          4000
-        );
-      }
-    );
-  }
-  /** End Delete In Bulk */
-
-  /** End Delete Part Functionality */
-
-  /** Show Alert */
+  /**
+   * Show Alert
+   * @param alertClass
+   * @param alertMessage
+   * @param alertTimeout
+   */
   showAlert(alertClass, alertMessage, alertTimeout) {
     this.alertClass = alertClass;
     this.alertMessage = alertMessage;

@@ -12,10 +12,12 @@
   <button
     type="button"
     [ngClass]="
-      this.checkedBoxesPartIds.length === 0 ? 'btn btn-light' : 'btn btn-danger'
+      this.checkedPartsForDelete.length === 0
+        ? 'btn btn-light'
+        : 'btn btn-danger'
     "
-    [disabled]="this.checkedBoxesPartIds.length === 0"
-    (click)="openConfirmModal('undefined', 'undefined', 'multiple')"
+    [disabled]="this.checkedPartsForDelete.length === 0"
+    (click)="deleteInBulk()"
   >
     Delete
   </button>
@@ -112,7 +114,7 @@
           &nbsp;&nbsp;
           <i
             style="cursor: pointer"
-            (click)="openConfirmModal(parts.id, index, 'single')"
+            (click)="deletePart(parts, index)"
             class="fa fa-remove"
           ></i>
         </td>
@@ -127,13 +129,11 @@
     <ngb-pagination
       *ngIf="filteredPartsData.length > 0"
       class="d-flex justify-content-center"
-      [collectionSize]="filteredPartsData.length"
+      [collectionSize]="120"
       [(page)]="page"
       [(pageSize)]="pageSize"
-      [maxSize]="8"
+      [maxSize]="5"
       [rotate]="true"
-      [ellipses]="false"
-      [boundaryLinks]="true"
     >
       <ng-template ngbPaginationPrevious><</ng-template>
       <ng-template ngbPaginationNext>></ng-template></ngb-pagination

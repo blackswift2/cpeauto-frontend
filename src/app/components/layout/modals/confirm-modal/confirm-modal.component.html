@@ -12,19 +12,28 @@
 <div class="modal-body">
   <div [innerHTML]="modal_content"></div>
 </div>
-<div class="modal-footer">
+<div class="modal-footer justify-content-center">
+  <button
+    *ngIf="modal_operation === 'delete'"
+    type="button"
+    class="btn btn-danger"
+    (click)="activeModal.close('ok')"
+  >
+    DELETE
+  </button>
+  <button
+    *ngIf="modal_operation === 'update'"
+    type="button"
+    class="btn btn-dark"
+    (click)="activeModal.close('ok')"
+  >
+    CONFIRM
+  </button>
   <button
     type="button"
     class="btn btn-outline-secondary"
     (click)="activeModal.dismiss('cancel')"
   >
-    Cancel
-  </button>
-  <button
-    type="button"
-    class="btn btn-danger"
-    (click)="activeModal.close('ok')"
-  >
-    OK
+    CANCEL
   </button>
 </div>

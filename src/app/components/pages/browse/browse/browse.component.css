@@ -11,6 +11,7 @@
 .partsDataPagination {
   margin-top: 20px;
 }
+
 ngb-pagination /deep/ .page-item.disabled .page-link {
   padding: 0.4rem 1rem;
   display: block;
@@ -49,6 +50,13 @@ ngb-pagination /deep/ .page-item.active .page-link {
   border-color: #000000;
   box-shadow: none;
   outline: none !important;
+}
+
+ngb-pagination /deep/ .pagination .page-item.disabled .page-link {
+  border-top-style: none !important;
+  border-bottom-style: none !important;
+  background-color: #f6f6f6 !important;
+  color: black !important;
 }
 
 .no-data {
