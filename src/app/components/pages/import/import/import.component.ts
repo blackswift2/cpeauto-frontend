@@ -38,8 +38,8 @@ export class ImportComponent implements OnInit {
     if (!this.checkFileExtension(this.fileName)) return;
     this.fileUploadStart = 1;
     this.file.progress = 0;
-    this.readCSVFile(this.file);
     this.uploadFilesSimulator();
+    setTimeout(() => this.readCSVFile(this.file), 1500);
   }
 
   /**
@@ -63,15 +63,12 @@ export class ImportComponent implements OnInit {
    * Simulating the file uplaoding process
    */
   uploadFilesSimulator() {
-    setTimeout(() => {
-      const progressInterval = setInterval(() => {
-        if (this.file.progress === 100) {
-          clearInterval(progressInterval);
-          setTimeout(() => (this.fileUploadStart = 2), 500);
-        } else {
-          this.file.progress += 5;
-        }
-      }, 200);
+    const progressInterval = setInterval(() => {
+      if (this.file.progress === 100) {
+        clearInterval(progressInterval);
+      } else {
+        this.file.progress += 5;
+      }
     }, 1000);
   }
 
@@ -80,6 +77,7 @@ export class ImportComponent implements OnInit {
    * @param file
    */
   readCSVFile(file) {
+    console.log(file);
     fileReader.parse(file, {
       header: true,
       skipEmptyLines: true,
@@ -89,6 +87,8 @@ export class ImportComponent implements OnInit {
         this.csvData = result.data;
         this.fileHeaderColumns = result.meta.fields;
         this.generateCSVParserRules(this.fileHeaderColumns);
+        this.file.progress = 95;
+        setTimeout(() => (this.fileUploadStart = 2), 1500);
       },
       error: (err) => {
         console.log(err);
@@ -219,11 +219,17 @@ export class ImportComponent implements OnInit {
 
   cancelImport() {
     this.file = '';
+    this.fileName = '';
+    this.fileHeaderColumns = [];
+    this.fileData = [];
+    this.csvData = [];
+
     this.alertClass = '';
     this.alertMessage = '';
     this.csvData = [];
-    this.fileHeaderColumns = [];
-    this.fileName = '';
+
+    this.fileUploadStart = 0;
+    this.csvDataRules = {};
   }
 
   /** Open Confirmation Modal */

@@ -121,13 +121,19 @@
           </select>
           <div
             [ngStyle]="
-              csvDataRules[column]['matchTo'] === 'skip'
+              csvDataRules[column]['matchTo'] === 'skip' ||
+              csvDataRules[column]['matchTo'] === 'part_number'
                 ? { color: '#ccc' }
                 : { color: '' }
             "
           >
             <label class="mt-3 mb-2 font-weight-bold">Empty Values:</label>
-            <fieldset [disabled]="csvDataRules[column]['matchTo'] === 'skip'">
+            <fieldset
+              [disabled]="
+                csvDataRules[column]['matchTo'] === 'skip' ||
+                csvDataRules[column]['matchTo'] === 'part_number'
+              "
+            >
               <form>
                 <label class="radio-inline">
                   <input
