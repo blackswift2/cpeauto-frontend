@@ -39,8 +39,9 @@ export class ExportPartsComponent implements OnInit {
     if (!this.checkFileExtension(this.fileName)) return;
     this.fileUploadStart = 1;
     this.file.progress = 0;
-    this.readCSVFile(this.file);
     this.uploadFilesSimulator();
+    this.readCSVFile(this.file);
+    setTimeout(() => this.readCSVFile(this.file), 1500);
   }
 
   /**
@@ -80,15 +81,12 @@ export class ExportPartsComponent implements OnInit {
    * Simulating the file uplaoding process
    */
   uploadFilesSimulator() {
-    setTimeout(() => {
-      const progressInterval = setInterval(() => {
-        if (this.file.progress === 100) {
-          clearInterval(progressInterval);
-          setTimeout(() => (this.fileUploadStart = 2), 1500);
-        } else {
-          this.file.progress += 5;
-        }
-      }, 200);
+    const progressInterval = setInterval(() => {
+      if (this.file.progress === 100) {
+        clearInterval(progressInterval);
+      } else {
+        this.file.progress += 5;
+      }
     }, 1000);
   }
 
@@ -100,11 +98,15 @@ export class ExportPartsComponent implements OnInit {
     fileReader.parse(file, {
       header: true,
       skipEmptyLines: true,
-      dynamicTyping: true,
+      transformHeader: (h) => {
+        return h.trim();
+      },
       complete: (result) => {
         this.fileData = result.data;
         this.fileHeaderColumns = result.meta.fields;
         this.selectedColumn = this.fileHeaderColumns[0];
+        this.file.progress = 95;
+        setTimeout(() => (this.fileUploadStart = 2), 1200);
       },
       error: (err) => {
         console.log(err);
@@ -144,12 +146,25 @@ export class ExportPartsComponent implements OnInit {
     const partNumbers = [];
     for (let i = 0; i < this.fileData.length; i++) {
       if (this.fileData[i][this.selectedColumn]) {
-        partNumbers.push(this.fileData[i][this.selectedColumn].toString());
+        partNumbers.push(
+          this.fileData[i][this.selectedColumn].toString().trim()
+        );
       }
     }
     if (this.exportColumns.length > 0 && partNumbers.length > 0) {
       this.exportColumns.unshift('part_number'); // Add part number to in exported columns
-      this.openConfirmModal({
+      setTimeout(() => {
+        this.file.progress = 0;
+        this.fileUploadStart = 3;
+        const progressInterval = setInterval(() => {
+          if (this.file.progress === 100) {
+            clearInterval(progressInterval);
+          } else {
+            this.file.progress += 5;
+          }
+        }, 200);
+      }, 100);
+      this.downloadExportedData({
         partNumbers,
         exportColumns: this.exportColumns,
       });
@@ -187,43 +202,6 @@ export class ExportPartsComponent implements OnInit {
   }
 
   /**
-   * Open Confirmation Modal to export
-   * @param partData
-   */
-  openConfirmModal(partData) {
-    const modalOptions: NgbModalOptions = {
-      backdrop: 'static',
-      backdropClass: 'customBackdrop',
-      centered: true,
-    };
-    const modalRef = this.modalService.open(
-      ConfirmModalComponent,
-      modalOptions
-    );
-    modalRef.componentInstance.modal_title = 'Confirm Export';
-    modalRef.componentInstance.modal_content = `
-    <p><strong>Please confirm to export data.</strong></p>
-    </p>`;
-
-    modalRef.result.then((result) => {
-      if (result === 'ok') {
-        setTimeout(() => {
-          this.file.progress = 0;
-          this.fileUploadStart = 3;
-          const progressInterval = setInterval(() => {
-            if (this.file.progress === 100) {
-              clearInterval(progressInterval);
-            } else {
-              this.file.progress += 5;
-            }
-          }, 200);
-        }, 100);
-        this.downloadExportedData(partData);
-      }
-    });
-  }
-
-  /**
    * Show Alert
    * @param alertClass
    * @param alertMessage
@@ -241,11 +219,17 @@ export class ExportPartsComponent implements OnInit {
   /**
    * Cancel import, clear all variables
    */
-  cancelImport() {
-    this.file = [];
+  cancelExport() {
+    this.file;
+    this.fileName = '';
+    this.fileHeaderColumns = [];
+    this.fileData = [];
+
+    this.selectedColumn = '';
+    this.exportColumns = [];
+
     this.alertClass = '';
     this.alertMessage = '';
-    this.fileData = [];
-    this.fileHeaderColumns = [];
+    this.fileUploadStart = 0;
   }
 }
