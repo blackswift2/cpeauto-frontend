@@ -147,15 +147,18 @@ export class AddpartsComponent implements OnInit {
     const modelContent = '<p>These typically do not require editing.</p>';
     const modelOperation = 'update';
     const checkToShowModal = this.partNumberCopy !== formData.part_number; // Show confirmation dialog only on change part dialog
-    if (
-      checkToShowModal &&
-      (await this.openConfirmModal(title, modelContent, modelOperation)) ===
+    if (checkToShowModal) {
+      if (
+        (await this.openConfirmModal(title, modelContent, modelOperation)) ===
         'ok'
-    ) {
-      this.proceedUpdatePartData(partID, formData);
-    } else {
-      this.proceedUpdatePartData(partID, formData);
+      ) {
+        this.proceedUpdatePartData(partID, formData);
+      } else {
+        return;
+      }
     }
+
+    this.proceedUpdatePartData(partID, formData);
   }
 
   proceedUpdatePartData(partID, formData) {
