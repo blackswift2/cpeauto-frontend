@@ -139,6 +139,10 @@ export class AddpartsComponent implements OnInit {
    * @param formData
    */
   async updatePartData(partID, formData) {
+    //Trim white spaces
+    Object.keys(formData).forEach(
+      (key) => (formData[key] = formData[key].trim())
+    );
     const title = 'Change Part Number?';
     const modelContent = '<p>These typically do not require editing.</p>';
     const modelOperation = 'update';
