@@ -100,8 +100,10 @@
   >
     <div class="col-md-4 import-select-column">
       <label class="mt-3 ml-2 font-weight-bold"
-        >{{ column }} (Column
-        {{ (i + 1 + 9).toString(36).toUpperCase() }})</label
+        >{{ column }}
+        <span style="color: #a3a2a3"
+          >Column ({{ (i + 1 + 9).toString(36).toUpperCase() }})</span
+        ></label
       >
       <div class="ml-2" style="border-top: 1px solid #ccc">
         <div class="mt-3">
@@ -182,7 +184,8 @@
     <div class="col-md-8">
       <table class="table mt-2">
         <label class="mt-2 ml-2"
-          ><strong> File Data </strong> <small>(first 5 rows)</small></label
+          ><strong> File Data </strong>
+          <small style="color: #a3a2a3">(first 5 rows)</small></label
         >
         <tr *ngFor="let columnValue of fileData | slice: 0:5">
           <td>{{ columnValue[column] }}</td>
@@ -209,8 +212,20 @@
 </div>
 
 <div class="container-fluid" *ngIf="fileUploadStart === 4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="pull-right" style="margin-right: 15px">
+        <button
+          class="btn btn-dark btn-lg ml-2 font-weight-bold"
+          (click)="cancelImport()"
+        >
+          Import Again
+        </button>
+      </div>
+    </div>
+  </div>
   <div class="col-md-12 col-sm-12 files-list">
-    <div class="single-file" *ngIf="file">
+    <div class="single-file">
       <div class="info" style="margin-top: 40px">
         <h4 class="font-weight-bold center-uploading">Import Complete!</h4>
         <p class="center font-italic" style="color: green">

@@ -7,7 +7,7 @@
     <b> {{ alertMessage }} </b>
   </div>
   <a routerLink="/browse/add"
-    ><button type="button" class="btn btn-dark font-weight-bold">Add</button></a
+    ><button type="button" class="btn btn-dark">Add</button></a
   >
   <button
     type="button"
@@ -102,9 +102,15 @@
             />&nbsp;{{ parts.part_number }}</span
           >
         </td>
-        <td>{{ parts.description_en || "Not Available" }}</td>
-        <td>{{ parts.description_es || "Not Available" }}</td>
-        <td>{{ parts.description_fr || "Not Available" }}</td>
+        <td [ngStyle]="{ color: !parts.description_en ? '#A3A2A3' : '' }">
+          {{ parts.description_en || "Not Available" }}
+        </td>
+        <td [ngStyle]="{ color: !parts.description_es ? '#A3A2A3' : '' }">
+          {{ parts.description_es || "Not Available" }}
+        </td>
+        <td [ngStyle]="{ color: !parts.description_fr ? '#A3A2A3' : '' }">
+          {{ parts.description_fr || "Not Available" }}
+        </td>
         <td>
           <i
             style="cursor: pointer"

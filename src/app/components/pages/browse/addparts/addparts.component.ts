@@ -104,6 +104,16 @@ export class AddpartsComponent implements OnInit {
       }
     }
   }
+  resetAddPartsForm() {
+    this.addPartsForm.reset();
+    //Reinitializing due to NULL issue
+    this.addPartsForm = this.fb.group({
+      part_number: ['', [Validators.required]],
+      description_en: [''],
+      description_es: [''],
+      description_fr: [''],
+    });
+  }
 
   /**
    * Create Part Data
@@ -116,7 +126,7 @@ export class AddpartsComponent implements OnInit {
     );
     this.partsService.createPart({ data: formData }).subscribe(
       (res) => {
-        this.addPartsForm.reset();
+        this.resetAddPartsForm();
         this.showAlert(
           'alert alert-success',
           'Part has been added successfully!',
@@ -202,14 +212,9 @@ export class AddpartsComponent implements OnInit {
     ) {
       this.partsService.deletePart(partID).subscribe(
         (res) => {
-          this.showAlert(
-            'alert alert-success',
-            `Part data deleted successfully. You'll be redirected to browse page!`,
-            3000
-          );
-          setTimeout(() => {
-            this.router.navigateByUrl('/browse');
-          }, 3500);
+          this.router.navigate(['/browse'], {
+            queryParams: { deleted: partID },
+          });
         },
         (err) => {
           this.showAlert(

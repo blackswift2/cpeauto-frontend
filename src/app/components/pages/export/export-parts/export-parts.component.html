@@ -108,7 +108,7 @@
         <label class="mt-4 mb-1 font-weight-bold"
           >Output fields <span style="color: red">*</span></label
         >
-        <p class="font-italic">(Choose at least 1)</p>
+        <p class="font-italic" style="color: #a3a2a3">(Choose at least 1)</p>
         <label class="radio-inline">
           <input
             type="checkbox"
@@ -140,7 +140,8 @@
     <div class="col-md-8">
       <table class="table mt-2">
         <label class="mt-2 ml-2"
-          ><strong> File Data </strong> <small>(first 5 rows)</small></label
+          ><strong> File Data </strong>
+          <small style="color: #a3a2a3">(first 5 rows)</small></label
         >
         <tr *ngFor="let data of fileData | slice: 0:5">
           <td>{{ data[selectedColumn] }}</td>
@@ -164,6 +165,18 @@
 </div>
 
 <div class="container-fluid" *ngIf="fileUploadStart === 4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="pull-right" style="margin-right: 15px">
+        <button
+          class="btn btn-dark btn-lg ml-2 font-weight-bold"
+          (click)="cancelExport()"
+        >
+          Export Again
+        </button>
+      </div>
+    </div>
+  </div>
   <div class="col-md-12 col-sm-12 files-list">
     <div class="single-file" *ngIf="file">
       <div class="info" style="margin-top: 40px">

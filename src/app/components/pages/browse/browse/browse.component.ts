@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+
 import { PartsData } from '../../../../models/partsdata';
 import { PartsService } from './../../../../services/PartsService';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
@@ -26,11 +28,22 @@ export class BrowseComponent implements OnInit {
 
   constructor(
     private partsService: PartsService,
-    public modalService: NgbModal
+    public modalService: NgbModal,
+    private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.getPartsData();
+    this.activatedRoute.queryParams.subscribe((params) => {
+      const deletedOk = params['deleted'];
+      if (deletedOk) {
+        this.showAlert(
+          'alert alert-success',
+          `Part ${deletedOk} successfully deleted!`,
+          3000
+        );
+      }
+    });
   }
 
   /**
@@ -185,7 +198,7 @@ export class BrowseComponent implements OnInit {
           this.checkedPartsForDelete = [];
           this.showAlert(
             'alert alert-success',
-            'Parts have been successfully deleted.',
+            'Part(s) successfully deleted.',
             5000
           );
         },

@@ -3,6 +3,7 @@
   <button
     type="button"
     class="close"
+    style="outline: none"
     aria-describedby="modal-title"
     (click)="activeModal.dismiss('close')"
   >
@@ -19,7 +20,7 @@
     class="btn btn-danger"
     (click)="activeModal.close('ok')"
   >
-    DELETE
+    Delete
   </button>
   <button
     *ngIf="modal_operation === 'overwite'"
@@ -35,13 +36,13 @@
     class="btn btn-dark"
     (click)="activeModal.close('ok')"
   >
-    CONFIRM
+    Confirm
   </button>
   <button
     type="button"
     class="btn btn-outline-secondary"
     (click)="activeModal.dismiss('cancel')"
   >
-    CANCEL
+    Cancel
   </button>
 </div>
