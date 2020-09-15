@@ -141,10 +141,19 @@
       <table class="table mt-2">
         <label class="mt-2 ml-2"
           ><strong> File Data </strong>
-          <small style="color: #a3a2a3">(first 5 rows)</small></label
+          <span style="color: #a3a2a3">(first 5 rows)</span></label
         >
         <tr *ngFor="let data of fileData | slice: 0:5">
-          <td>{{ data[selectedColumn] }}</td>
+          <td *ngIf="data[selectedColumn] !== ''">
+            {{ data[selectedColumn] }}
+          </td>
+          <td
+            *ngIf="data[selectedColumn] == ''"
+            class="font-italic"
+            style="color: #a3a2a3"
+          >
+            (empty)
+          </td>
         </tr>
       </table>
     </div>
