@@ -102,14 +102,23 @@
             />&nbsp;{{ parts.part_number }}</span
           >
         </td>
-        <td [ngStyle]="{ color: !parts.description_en ? '#A3A2A3' : '' }">
-          {{ parts.description_en || "Not Available" }}
+        <td
+          [ngStyle]="{ color: !parts.description_en ? '#A3A2A3' : '' }"
+          [ngClass]="!parts.description_en ? 'font-italic' : ''"
+        >
+          {{ parts.description_en || "(empty)" }}
         </td>
-        <td [ngStyle]="{ color: !parts.description_es ? '#A3A2A3' : '' }">
-          {{ parts.description_es || "Not Available" }}
+        <td
+          [ngStyle]="{ color: !parts.description_es ? '#A3A2A3' : '' }"
+          [ngClass]="!parts.description_es ? 'font-italic' : ''"
+        >
+          {{ parts.description_es || "(empty)" }}
         </td>
-        <td [ngStyle]="{ color: !parts.description_fr ? '#A3A2A3' : '' }">
-          {{ parts.description_fr || "Not Available" }}
+        <td
+          [ngStyle]="{ color: !parts.description_fr ? '#A3A2A3' : '' }"
+          [ngClass]="!parts.description_fr ? 'font-italic' : ''"
+        >
+          {{ parts.description_fr || "(empty)" }}
         </td>
         <td>
           <i
